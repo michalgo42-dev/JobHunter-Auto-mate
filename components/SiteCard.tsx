@@ -46,6 +46,7 @@ export const SiteCard: React.FC<SiteCardProps> = ({
               target="_blank" 
               rel="noopener noreferrer" 
               className="text-gray-400 hover:text-blue-600 transition-colors flex-shrink-0"
+              onClick={(e) => e.stopPropagation()}
             >
               <ExternalLink size={16} />
             </a>
@@ -97,7 +98,11 @@ export const SiteCard: React.FC<SiteCardProps> = ({
         <div className="flex gap-2">
           {site.lastResult && (
             <button
-              onClick={() => onViewResult(site)}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewResult(site);
+              }}
               className="flex-1 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-lg transition-colors"
               title="Zobacz wynik"
             >
@@ -106,7 +111,11 @@ export const SiteCard: React.FC<SiteCardProps> = ({
           )}
 
           <button
-            onClick={() => onDelete(site.id)}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(site.id);
+            }}
             disabled={isLoading}
             className={`px-3 py-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors ${!site.lastResult ? 'ml-auto' : ''}`}
             title="Usuń stronę"

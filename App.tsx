@@ -33,9 +33,14 @@ const App: React.FC = () => {
   }, [sites]);
 
   const handleAddSite = (newSite: Omit<JobSite, 'id' | 'lastChecked' | 'lastResult' | 'status'>) => {
+    // Generate ID safely (fallback for non-secure contexts)
+    const newId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
+      ? crypto.randomUUID() 
+      : `site-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
     const site: JobSite = {
       ...newSite,
-      id: crypto.randomUUID(),
+      id: newId,
       lastChecked: null,
       lastResult: null,
       status: 'idle'
@@ -44,7 +49,7 @@ const App: React.FC = () => {
   };
 
   const handleDeleteSite = (id: string) => {
-    if (confirm('Czy na pewno chcesz usunąć tę stronę z listy?')) {
+    if (window.confirm('Czy na pewno chcesz usunąć tę stronę z listy?')) {
       setSites(prev => prev.filter(s => s.id !== id));
     }
   };
