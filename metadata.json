@@ -1,0 +1,5 @@
+{
+  "name": "JobHunter Auto-mate",
+  "description": "Zautomatyzowany asystent do monitorowania ofert pracy na wybranych stronach internetowych przy użyciu Google Gemini.",
+  "requestFramePermissions": []
+}
