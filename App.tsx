@@ -13,7 +13,6 @@ const App: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedResult, setSelectedResult] = useState<{site: JobSite, result: ScanResult} | null>(null);
   const [isBulkScanning, setIsBulkScanning] = useState(false);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   // Load from local storage on mount
   useEffect(() => {
@@ -54,6 +53,22 @@ const App: React.FC = () => {
     }
   };
 
+  const handleEditTitle = (id: string, newTitle: string) => {
+    setSites(prev => prev.map(s => s.id === id ? { ...s, name: newTitle } : s));
+  };
+
+  const handleMoveSite = (index: number, direction: 'left' | 'right') => {
+    if (direction === 'left' && index === 0) return;
+    if (direction === 'right' && index === sites.length - 1) return;
+
+    const newSites = [...sites];
+    const targetIndex = direction === 'left' ? index - 1 : index + 1;
+    
+    // Swap elements
+    [newSites[index], newSites[targetIndex]] = [newSites[targetIndex], newSites[index]];
+    setSites(newSites);
+  };
+
   const handleScan = async (id: string): Promise<void> => {
     const site = sites.find(s => s.id === id);
     if (!site) return;
@@ -79,7 +94,6 @@ const App: React.FC = () => {
     } catch (error) {
       setSites(prev => prev.map(s => s.id === id ? { ...s, status: 'error' } : s));
       console.error(`Błąd podczas skanowania ${site.name}:`, error);
-      // Removed alert to allow smooth bulk scanning
     }
   };
 
@@ -105,30 +119,6 @@ const App: React.FC = () => {
         console.error("Error parsing stored result", e);
       }
     }
-  };
-
-  // Drag and Drop Handlers
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedIndex(index);
-    // Needed for Firefox to allow drag
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault(); // Necessary to allow dropping
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === dropIndex) return;
-
-    const newSites = [...sites];
-    const [draggedItem] = newSites.splice(draggedIndex, 1);
-    newSites.splice(dropIndex, 0, draggedItem);
-    
-    setSites(newSites);
-    setDraggedIndex(null);
   };
 
   return (
@@ -191,13 +181,12 @@ const App: React.FC = () => {
               <SiteCard
                 key={site.id}
                 site={site}
+                index={index}
+                totalCount={sites.length}
                 onDelete={handleDeleteSite}
                 onViewResult={handleViewResult}
-                draggable={!isBulkScanning} // Disable drag during scanning
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, index)}
-                isDragging={draggedIndex === index}
+                onEdit={handleEditTitle}
+                onMove={handleMoveSite}
               />
             ))}
           </div>
